@@ -42,6 +42,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.graalvm.nativeimage.hosted.Feature.DuringAnalysisAccess;
+import org.graalvm.nativeimage.impl.ConfigurationPredicate;
 import org.graalvm.nativeimage.impl.RuntimeReflectionSupport;
 
 import com.oracle.graal.pointsto.meta.AnalysisType;
@@ -108,7 +109,7 @@ public class ReflectionDataBuilder implements RuntimeReflectionSupport {
     }
 
     @Override
-    public void register(Class<?>... classes) {
+    public void register(ConfigurationPredicate predicate, Class<?>... classes) {
         checkNotSealed();
         for (Class<?> clazz : classes) {
             if (reflectionClasses.add(clazz)) {
@@ -118,7 +119,7 @@ public class ReflectionDataBuilder implements RuntimeReflectionSupport {
     }
 
     @Override
-    public void register(Executable... methods) {
+    public void register(ConfigurationPredicate predicate, Executable... methods) {
         checkNotSealed();
         for (Executable method : methods) {
             if (reflectionMethods.add(method)) {
@@ -128,7 +129,7 @@ public class ReflectionDataBuilder implements RuntimeReflectionSupport {
     }
 
     @Override
-    public void register(boolean finalIsWritable, Field... fields) {
+    public void register(ConfigurationPredicate predicate, boolean finalIsWritable, Field... fields) {
         checkNotSealed();
         // Unsafe and write accesses are always enabled for fields because accessors use Unsafe.
         for (Field field : fields) {

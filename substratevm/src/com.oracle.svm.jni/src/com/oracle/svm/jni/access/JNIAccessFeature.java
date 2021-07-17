@@ -26,6 +26,7 @@ package com.oracle.svm.jni.access;
 
 // Checkstyle: allow reflection
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -40,6 +41,7 @@ import org.graalvm.compiler.api.replacements.Fold;
 import org.graalvm.compiler.options.Option;
 import org.graalvm.nativeimage.ImageSingletons;
 import org.graalvm.nativeimage.hosted.Feature;
+import org.graalvm.nativeimage.impl.ConfigurationPredicate;
 import org.graalvm.nativeimage.impl.ReflectionRegistry;
 
 import com.oracle.graal.pointsto.BigBang;
@@ -130,19 +132,19 @@ public class JNIAccessFeature implements Feature {
 
     private class JNIRuntimeAccessibilitySupportImpl implements JNIRuntimeAccess.JNIRuntimeAccessibilitySupport, ReflectionRegistry {
         @Override
-        public void register(Class<?>... classes) {
+        public void register(ConfigurationPredicate predicate, Class<?>... classes) {
             abortIfSealed();
             newClasses.addAll(Arrays.asList(classes));
         }
 
         @Override
-        public void register(Executable... methods) {
+        public void register(ConfigurationPredicate predicate, Executable... methods) {
             abortIfSealed();
             newMethods.addAll(Arrays.asList(methods));
         }
 
         @Override
-        public void register(boolean finalIsWritable, Field... fields) {
+        public void register(ConfigurationPredicate predicate, boolean finalIsWritable, Field... fields) {
             abortIfSealed();
             for (Field field : fields) {
                 boolean writable = finalIsWritable || !Modifier.isFinal(field.getModifiers());

@@ -44,10 +44,10 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 
 public interface ReflectionRegistry {
-    void register(Class<?>... classes);
+    void register(ConfigurationPredicate predicate, Class<?>... classes);
 
-    void register(Executable... methods);
+    void register(ConfigurationPredicate predicate, Executable... methods);
 
-    void register(boolean finalIsWritable, Field... fields);
+    void register(ConfigurationPredicate predicate, boolean finalIsWritable, Field... fields);
 
 }

@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.graalvm.collections.Pair;
+import org.graalvm.nativeimage.impl.ConfigurationPredicate;
+
 import com.oracle.svm.configure.ConfigurationBase;
 import com.oracle.svm.configure.json.JsonWriter;
 import com.oracle.svm.core.util.UserError;
@@ -39,19 +42,17 @@ import com.oracle.svm.core.util.UserError;
 import jdk.vm.ci.meta.JavaKind;
 
 public class TypeConfiguration implements ConfigurationBase {
-    private final ConcurrentMap<String, ConfigurationType> types = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Pair<ConfigurationPredicate, String>, ConfigurationType> types = new ConcurrentHashMap<>();
 
     public TypeConfiguration() {
     }
 
     public TypeConfiguration(TypeConfiguration other) {
-        for (ConfigurationType configurationType : other.types.values()) {
-            types.put(configurationType.getQualifiedJavaName(), new ConfigurationType(configurationType));
-        }
+        types.putAll(other.types);
     }
 
     public void removeAll(TypeConfiguration other) {
-        for (Map.Entry<String, ConfigurationType> typeEntry : other.types.entrySet()) {
+        for (Map.Entry<Pair<ConfigurationPredicate, String>, ConfigurationType> typeEntry : other.types.entrySet()) {
             types.computeIfPresent(typeEntry.getKey(), (key, value) -> {
                 if (value.equals(typeEntry.getValue())) {
                     return null;
@@ -63,12 +64,12 @@ public class TypeConfiguration implements ConfigurationBase {
         }
     }
 
-    public ConfigurationType get(String qualifiedJavaName) {
-        return types.get(qualifiedJavaName);
+    public ConfigurationType get(ConfigurationPredicate predicate, String qualifiedJavaName) {
+        return types.get(Pair.create(predicate, qualifiedJavaName));
     }
 
-    public void add(ConfigurationType type) {
-        ConfigurationType previous = types.putIfAbsent(type.getQualifiedJavaName(), type);
+    public void add(ConfigurationPredicate predicate, ConfigurationType type) {
+        ConfigurationType previous = types.putIfAbsent(Pair.create(predicate, type.getQualifiedJavaName()), type);
         UserError.guarantee(previous == null || previous == type, "Cannot replace existing type %s with %s", previous, type);
     }
 
@@ -94,7 +95,7 @@ public class TypeConfiguration implements ConfigurationBase {
             }
             s = sb.toString();
         }
-        return types.computeIfAbsent(s, ConfigurationType::new);
+        return types.computeIfAbsent(Pair.create(ConfigurationPredicate.DEFAULT_CONFIGRATION_PREDICATE, s), p -> new ConfigurationType(p.getRight()));
     }
 
     @Override

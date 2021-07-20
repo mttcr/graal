@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2017, 2017, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -32,10 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.graalvm.nativeimage.impl.ConfigurationPredicate;
+
 import com.oracle.svm.core.TypeResult;
 import com.oracle.svm.core.util.json.JSONParser;
 import com.oracle.svm.core.util.json.JSONParserException;
-import org.graalvm.nativeimage.impl.ConfigurationPredicate;
 
 // Checkstyle: allow reflection
 
@@ -78,12 +80,16 @@ public final class ReflectionConfigurationParser<T> extends ConfigurationParser 
         }
         String className = asString(classObject, "name");
         ConfigurationPredicate predicate = ConfigurationPredicate.DEFAULT_CONFIGRATION_PREDICATE;
-        if (data.containsKey("predicate")) {
-            Map<String, Object> predicateData = asMap(data.get("predicate"), "Attribute 'predicate' must be an object");
-            predicate = delegate.resolvePredicate(predicateData);
+        Object predicateData = data.get("predicate");
+        if (predicateData != null) {
+            Map<String, Object> predicateObject = asMap(predicateData, "Attribute 'predicate' must be an object");
+            Object predicateType = predicateObject.get("whenTypeReachable");
+            if (predicateType instanceof String) {
+                predicate = ConfigurationPredicate.create((String) predicateType);
+            }
         }
 
-        TypeResult<T> result = delegate.resolveTypeResult(className);
+        TypeResult<T> result = delegate.resolveTypeResult(predicate, className);
         if (!result.isPresent()) {
             handleError("Could not resolve " + className + " for reflection configuration.", result.getException());
             return;
@@ -195,7 +201,7 @@ public final class ReflectionConfigurationParser<T> extends ConfigurationParser 
             if (propertyName.equals("name")) {
                 methodName = asString(entry.getValue(), "name");
             } else if (propertyName.equals("parameterTypes")) {
-                methodParameterTypes = parseMethodParameters(clazz, methodName, asList(entry.getValue(),
+                methodParameterTypes = parseMethodParameters(predicate, clazz, methodName, asList(entry.getValue(),
                                 "Attribute 'parameterTypes' must be a list of type names"));
                 if (methodParameterTypes == null) {
                     return;
@@ -237,11 +243,11 @@ public final class ReflectionConfigurationParser<T> extends ConfigurationParser 
         }
     }
 
-    private List<T> parseMethodParameters(T clazz, String methodName, List<Object> types) {
+    private List<T> parseMethodParameters(ConfigurationPredicate predicate, T clazz, String methodName, List<Object> types) {
         List<T> result = new ArrayList<>();
         for (Object type : types) {
             String typeName = asString(type, "types");
-            TypeResult<T> typeResult = delegate.resolveTypeResult(typeName);
+            TypeResult<T> typeResult = delegate.resolveTypeResult(predicate, typeName);
             if (!typeResult.isPresent()) {
                 handleError("Could not register method " + formatMethod(clazz, methodName) + " for reflection.", typeResult.getException());
                 return null;

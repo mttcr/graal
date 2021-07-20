@@ -36,6 +36,7 @@ import com.oracle.svm.configure.config.ConfigurationMethod;
 import com.oracle.svm.configure.config.TypeConfiguration;
 
 import jdk.vm.ci.meta.MetaUtil;
+import org.graalvm.nativeimage.impl.ConfigurationPredicate;
 
 class JniProcessor extends AbstractProcessor {
     private final TypeConfiguration configuration;

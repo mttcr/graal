@@ -27,7 +27,6 @@ package com.oracle.svm.hosted.config;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 
 import org.graalvm.nativeimage.impl.ConfigurationPredicate;
 import org.graalvm.nativeimage.impl.ReflectionRegistry;
@@ -54,18 +53,7 @@ public class ReflectionRegistryAdapter implements ReflectionConfigurationParserD
     }
 
     @Override
-    public ConfigurationPredicate resolvePredicate(Map<String, Object> predicate) {
-        return ConfigurationPredicate.DEFAULT_CONFIGRATION_PREDICATE;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public Class<?> resolveType(String typeName) {
-        return resolveTypeResult(typeName).get();
-    }
-
-    @Override
-    public TypeResult<Class<?>> resolveTypeResult(String typeName) {
+    public TypeResult<Class<?>> resolveTypeResult(ConfigurationPredicate predicate, String typeName) {
         String name = typeName;
         if (name.indexOf('[') != -1) {
             /* accept "int[][]", "java.lang.String[]" */

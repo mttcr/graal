@@ -25,7 +25,6 @@
 package com.oracle.svm.configure.config;
 
 import java.util.List;
-import java.util.Map;
 
 import com.oracle.svm.core.TypeResult;
 import org.graalvm.nativeimage.impl.ConfigurationPredicate;
@@ -40,15 +39,10 @@ public class ParserConfigurationAdapter implements ReflectionConfigurationParser
     }
 
     @Override
-    public TypeResult<ConfigurationType> resolveTypeResult(String typeName) {
-        ConfigurationType type = configuration.get(ConfigurationPredicate.DEFAULT_CONFIGRATION_PREDICATE, typeName);
+    public TypeResult<ConfigurationType> resolveTypeResult(ConfigurationPredicate predicate, String typeName) {
+        ConfigurationType type = configuration.get(predicate, typeName);
         ConfigurationType result = type != null ? type : new ConfigurationType(typeName);
         return TypeResult.forType(typeName, result);
-    }
-
-    @Override
-    public ConfigurationPredicate resolvePredicate(Map<String, Object> predicate) {
-        return ConfigurationPredicate.DEFAULT_CONFIGRATION_PREDICATE;
     }
 
     @Override

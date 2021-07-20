@@ -25,24 +25,13 @@
 package com.oracle.svm.core.configure;
 
 import java.util.List;
-import java.util.Map;
 
 import com.oracle.svm.core.TypeResult;
 import org.graalvm.nativeimage.impl.ConfigurationPredicate;
 
 public interface ReflectionConfigurationParserDelegate<T> {
 
-    /**
-     * @deprecated use {@link #resolveTypeResult(String)} instead.
-     */
-    @Deprecated
-    default T resolveType(String typeName) {
-        return resolveTypeResult(typeName).get();
-    }
-
-    ConfigurationPredicate resolvePredicate(Map<String, Object> predicate);
-
-    TypeResult<T> resolveTypeResult(String typeName);
+    TypeResult<T> resolveTypeResult(ConfigurationPredicate predicate, String typeName);
 
     void registerType(ConfigurationPredicate predicate, T type);
 

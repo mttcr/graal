@@ -95,7 +95,10 @@ public class TypeConfiguration implements ConfigurationBase {
             }
             s = sb.toString();
         }
-        return types.computeIfAbsent(Pair.create(ConfigurationPredicate.DEFAULT_CONFIGRATION_PREDICATE, s), p -> new ConfigurationType(p.getRight()));
+
+        // the agent unconditionally includes all types
+        ConfigurationPredicate predicate = ConfigurationPredicate.DEFAULT_CONFIGRATION_PREDICATE;
+        return types.computeIfAbsent(Pair.create(predicate, s), p -> new ConfigurationType(p.getRight()));
     }
 
     @Override

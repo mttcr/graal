@@ -269,6 +269,7 @@ static uint32_t threads_per_core() {
   return (result == 0 ? 1 : result);
 }
 
+// This is ported from the HotSpot stub get_cpu_info_stub within vm_version_x86.cpp
 static void initialize_cpuinfo()
 {
   uint32_t eax, ebx, ecx, edx;
@@ -300,7 +301,8 @@ static void initialize_cpuinfo()
     if (_cpuid_info.std_cpuid1_ecx.bits.osxsave && _cpuid_info.std_cpuid1_ecx.bits.avx)
     {
       // Reading extended control register
-      __asm__ __volatile__("xgetbv" : "=a"(eax), "=d"(edx) : "c"(0));
+      //__asm__ __volatile__("xgetbv" : "=a"(eax), "=d"(edx) : "c"(0));
+      asm("xgetbv" : "=a"(eax), "=d"(edx) : "c"(0));
       _cpuid_info.xem_xcr0_eax.value = eax;
       _cpuid_info.xem_xcr0_edx = edx;
     }

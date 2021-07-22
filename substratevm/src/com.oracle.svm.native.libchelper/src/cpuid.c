@@ -56,7 +56,7 @@ int get_cpuid (unsigned int leaf, unsigned int *eax, unsigned int *ebx, unsigned
 #include <intrin.h>
 
 static void read_xem_xcr0(uint32_t *eax, uint32_t *edx) {
-  uint64_t result = _xbgetv(0);
+  uint64_t result = _xgetbv(0);
   *eax = (uint32_t) result;
   *edx = (uint32_t) (result >> 32);
 }
